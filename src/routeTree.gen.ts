@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResearchRouteImport } from './routes/research'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as MeetingRouteImport } from './routes/meeting'
 import { Route as EmailRouteImport } from './routes/email'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
+const ResearchRoute = ResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlannerRoute = PlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/email': typeof EmailRoute
   '/meeting': typeof MeetingRoute
   '/planner': typeof PlannerRoute
+  '/research': typeof ResearchRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/email': typeof EmailRoute
   '/meeting': typeof MeetingRoute
   '/planner': typeof PlannerRoute
+  '/research': typeof ResearchRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,28 @@ export interface FileRoutesById {
   '/email': typeof EmailRoute
   '/meeting': typeof MeetingRoute
   '/planner': typeof PlannerRoute
+  '/research': typeof ResearchRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/email' | '/meeting' | '/planner' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/email'
+    | '/meeting'
+    | '/planner'
+    | '/research'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/email' | '/meeting' | '/planner' | '/api/chat'
-  id: '__root__' | '/' | '/email' | '/meeting' | '/planner' | '/api/chat'
+  to: '/' | '/email' | '/meeting' | '/planner' | '/research' | '/api/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/email'
+    | '/meeting'
+    | '/planner'
+    | '/research'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,11 +98,19 @@ export interface RootRouteChildren {
   EmailRoute: typeof EmailRoute
   MeetingRoute: typeof MeetingRoute
   PlannerRoute: typeof PlannerRoute
+  ResearchRoute: typeof ResearchRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/research': {
+      id: '/research'
+      path: '/research'
+      fullPath: '/research'
+      preLoaderRoute: typeof ResearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planner': {
       id: '/planner'
       path: '/planner'
@@ -124,8 +154,19 @@ const rootRouteChildren: RootRouteChildren = {
   EmailRoute: EmailRoute,
   MeetingRoute: MeetingRoute,
   PlannerRoute: PlannerRoute,
+  ResearchRoute: ResearchRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
