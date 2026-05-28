@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Copy, RefreshCw, Mail, FileText, ListChecks, Lightbulb, Sparkles } from "lucide-react";
+import { Loader2, Copy, RefreshCw, Mail, FileText, ListChecks, Lightbulb, Sparkles, PenLine } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import {
   summarizeMeeting,
   planTasks,
   researchTopic,
+  rewriteCopy,
 } from "@/lib/api/ai.functions";
 
 export const Route = createFileRoute("/")({
@@ -62,7 +63,7 @@ function Index() {
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Tabs defaultValue="email" className="w-full">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto gap-1">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full h-auto gap-1">
             <TabsTrigger value="email" className="gap-2 py-2">
               <Mail className="h-4 w-4" /> Email
             </TabsTrigger>
@@ -74,6 +75,9 @@ function Index() {
             </TabsTrigger>
             <TabsTrigger value="research" className="gap-2 py-2">
               <Lightbulb className="h-4 w-4" /> Research
+            </TabsTrigger>
+            <TabsTrigger value="copywriter" className="gap-2 py-2">
+              <PenLine className="h-4 w-4" /> Copywriter
             </TabsTrigger>
           </TabsList>
 
@@ -88,6 +92,9 @@ function Index() {
           </TabsContent>
           <TabsContent value="research" className="mt-6">
             <ResearchAssistant />
+          </TabsContent>
+          <TabsContent value="copywriter" className="mt-6">
+            <Copywriter />
           </TabsContent>
         </Tabs>
       </main>
@@ -486,6 +493,130 @@ function ResearchAssistant() {
             </Section>
             <Section title="Recommended next step">
               <p className="text-sm whitespace-pre-wrap">{result.recommendation}</p>
+            </Section>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ---------------- 5. Copywriter / Rewrite ---------------- */
+type RewriteResult = {
+  rewritten: string;
+  changes: string;
+};
+
+function Copywriter() {
+  const [original, setOriginal] = useState("");
+  const [goal, setGoal] = useState<"Clarify" | "Shorten" | "Lengthen" | "Persuade" | "Simplify" | "Formalize" | "Casualize">("Clarify");
+  const [audience, setAudience] = useState("");
+  const [tone, setTone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<RewriteResult | null>(null);
+
+  async function run() {
+    if (original.trim().length < 5) {
+      toast.error("Please paste some text to rewrite (at least 5 chars).");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await rewriteCopy({ data: { original, goal, audience: audience || undefined, tone: tone || undefined } });
+      setResult(res as RewriteResult);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to rewrite copy.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function copy() {
+    if (!result) return;
+    navigator.clipboard.writeText(result.rewritten);
+    toast.success("Rewritten copy copied to clipboard");
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>AI Copywriter</CardTitle>
+        <CardDescription>
+          Paste your draft and choose a goal to get polished, audience-ready copy.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label>Original copy</Label>
+          <Textarea
+            rows={8}
+            value={original}
+            maxLength={10000}
+            onChange={(e) => setOriginal(e.target.value)}
+            placeholder="Paste your email, paragraph, product description, or any draft here…"
+          />
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Goal</Label>
+            <Select value={goal} onValueChange={(v) => setGoal(v as never)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Clarify">Clarify</SelectItem>
+                <SelectItem value="Shorten">Shorten</SelectItem>
+                <SelectItem value="Lengthen">Lengthen</SelectItem>
+                <SelectItem value="Persuade">Persuade</SelectItem>
+                <SelectItem value="Simplify">Simplify</SelectItem>
+                <SelectItem value="Formalize">Formalize</SelectItem>
+                <SelectItem value="Casualize">Casualize</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="audience">Audience (optional)</Label>
+            <Input
+              id="audience"
+              value={audience}
+              maxLength={200}
+              onChange={(e) => setAudience(e.target.value)}
+              placeholder="e.g. Executives, Gen Z customers"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tone">Desired tone (optional)</Label>
+            <Input
+              id="tone"
+              value={tone}
+              maxLength={200}
+              onChange={(e) => setTone(e.target.value)}
+              placeholder="e.g. Witty, empathetic, urgent"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={run} disabled={loading}>
+            {loading ? <Spinner /> : <PenLine className="h-4 w-4" />}
+            <span className="ml-2">{loading ? "Rewriting…" : "Rewrite"}</span>
+          </Button>
+          {result && (
+            <Button variant="outline" onClick={copy}>
+              <Copy className="h-4 w-4" /> <span className="ml-2">Copy result</span>
+            </Button>
+          )}
+        </div>
+
+        {result && (
+          <div className="space-y-4 mt-4">
+            <Section title="Rewritten copy">
+              <Textarea
+                value={result.rewritten}
+                onChange={(e) => setResult({ ...result, rewritten: e.target.value })}
+                rows={10}
+                className="font-mono text-sm"
+              />
+            </Section>
+            <Section title="What changed">
+              <p className="text-sm whitespace-pre-wrap">{result.changes}</p>
             </Section>
           </div>
         )}

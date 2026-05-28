@@ -113,3 +113,30 @@ export const researchTopic = createServerFn({ method: "POST" })
     });
     return output;
   });
+
+// 5. Copywriter / Rewrite
+export const rewriteCopy = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      original: z.string().min(5).max(10000),
+      goal: z.enum(["Clarify", "Shorten", "Lengthen", "Persuade", "Simplify", "Formalize", "Casualize"]),
+      audience: z.string().max(200).optional(),
+      tone: z.string().max(200).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { output } = await generateText({
+      model: getModel(),
+      output: Output.object({
+        schema: z.object({
+          rewritten: z.string(),
+          changes: z.string(),
+        }),
+      }),
+      prompt: `Rewrite the following copy. Goal: ${data.goal}. ${data.audience ? `Target audience: ${data.audience}.` : ""} ${data.tone ? `Desired tone: ${data.tone}.` : ""}
+
+Original copy:
+${data.original}`,
+    });
+    return output;
+  });
