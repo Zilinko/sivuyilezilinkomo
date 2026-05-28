@@ -13,6 +13,8 @@ import { Route as ResearchRouteImport } from './routes/research'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as MeetingRouteImport } from './routes/meeting'
 import { Route as EmailRouteImport } from './routes/email'
+import { Route as CopywriterRouteImport } from './routes/copywriter'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
@@ -36,6 +38,16 @@ const EmailRoute = EmailRouteImport.update({
   path: '/email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CopywriterRoute = CopywriterRouteImport.update({
+  id: '/copywriter',
+  path: '/copywriter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +61,8 @@ const ApiChatRoute = ApiChatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/copywriter': typeof CopywriterRoute
   '/email': typeof EmailRoute
   '/meeting': typeof MeetingRoute
   '/planner': typeof PlannerRoute
@@ -57,6 +71,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/copywriter': typeof CopywriterRoute
   '/email': typeof EmailRoute
   '/meeting': typeof MeetingRoute
   '/planner': typeof PlannerRoute
@@ -66,6 +82,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/copywriter': typeof CopywriterRoute
   '/email': typeof EmailRoute
   '/meeting': typeof MeetingRoute
   '/planner': typeof PlannerRoute
@@ -76,16 +94,28 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/chat'
+    | '/copywriter'
     | '/email'
     | '/meeting'
     | '/planner'
     | '/research'
     | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/email' | '/meeting' | '/planner' | '/research' | '/api/chat'
+  to:
+    | '/'
+    | '/chat'
+    | '/copywriter'
+    | '/email'
+    | '/meeting'
+    | '/planner'
+    | '/research'
+    | '/api/chat'
   id:
     | '__root__'
     | '/'
+    | '/chat'
+    | '/copywriter'
     | '/email'
     | '/meeting'
     | '/planner'
@@ -95,6 +125,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
+  CopywriterRoute: typeof CopywriterRoute
   EmailRoute: typeof EmailRoute
   MeetingRoute: typeof MeetingRoute
   PlannerRoute: typeof PlannerRoute
@@ -132,6 +164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/copywriter': {
+      id: '/copywriter'
+      path: '/copywriter'
+      fullPath: '/copywriter'
+      preLoaderRoute: typeof CopywriterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -151,6 +197,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
+  CopywriterRoute: CopywriterRoute,
   EmailRoute: EmailRoute,
   MeetingRoute: MeetingRoute,
   PlannerRoute: PlannerRoute,
