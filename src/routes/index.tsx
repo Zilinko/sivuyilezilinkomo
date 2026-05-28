@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Copy, RefreshCw, Mail, FileText, ListChecks, Lightbulb, Sparkles } from "lucide-react";
+import { Loader2, Copy, RefreshCw, Mail, FileText, ListChecks, Lightbulb, Sparkles, PenLine } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import {
   summarizeMeeting,
   planTasks,
   researchTopic,
+  rewriteCopy,
 } from "@/lib/api/ai.functions";
 
 export const Route = createFileRoute("/")({
@@ -62,7 +63,7 @@ function Index() {
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Tabs defaultValue="email" className="w-full">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto gap-1">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full h-auto gap-1">
             <TabsTrigger value="email" className="gap-2 py-2">
               <Mail className="h-4 w-4" /> Email
             </TabsTrigger>
@@ -74,6 +75,9 @@ function Index() {
             </TabsTrigger>
             <TabsTrigger value="research" className="gap-2 py-2">
               <Lightbulb className="h-4 w-4" /> Research
+            </TabsTrigger>
+            <TabsTrigger value="copywriter" className="gap-2 py-2">
+              <PenLine className="h-4 w-4" /> Copywriter
             </TabsTrigger>
           </TabsList>
 
@@ -88,6 +92,9 @@ function Index() {
           </TabsContent>
           <TabsContent value="research" className="mt-6">
             <ResearchAssistant />
+          </TabsContent>
+          <TabsContent value="copywriter" className="mt-6">
+            <Copywriter />
           </TabsContent>
         </Tabs>
       </main>
