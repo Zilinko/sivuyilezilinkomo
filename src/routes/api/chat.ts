@@ -20,8 +20,9 @@ export const Route = createFileRoute("/api/chat")({
           messages,
         });
 
-        return result.toDataStreamResponse();
+        return result.toUIMessageStreamResponse();
       },
     },
   },
 });
+
